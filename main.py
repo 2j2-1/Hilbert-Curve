@@ -40,56 +40,62 @@ class turtle(object):
 def map(value,changed,og):
 	return (value-changed[0])*(float(og[1]-og[0])/float(changed[1]-changed[0]))+og[0]
 
+def get_lookup():
+	
+	tim = turtle([0,backgroundSize[1]/boxSize-1])
+	movement = "L"
+	for i in range(iterations):
+		movement = movement.replace("L",L).replace("R",R).replace("r","R")
+	movement = movement.replace("R","").replace("L","").replace("+-","").replace("-+","")
+	length = movement.count("F")
+	count = 0
+	lookUp = []
+	for i in movement:
+		if i == "F":
+			tim.forward()
+			# tim.draw()
+			lookUp.append(tim.last)
+		elif i == "+":
+			tim.rightTurn()
+		elif i == "-":
+			tim.leftTurn()
+		# pygame.display.flip()
+	return lookUp
 
+iterations = 9
 pygame.init()
 WHITE= [255, 255, 255]
-backgroundSize = [1024,1024]
+backgroundSize = [2**iterations,2**iterations]
 MID = [backgroundSize[0]/2,backgroundSize[1]/2]
 screen = pygame.display.set_mode(backgroundSize)
 pygame.display.set_caption("Hilbert Curve")
 clock = pygame.time.Clock()
 L = "+rF-LFL-Fr+"
 R = "-LF+RFR+FL-"
+boxSize = 1
+userImage = pygame.image.load('superman.jpg')
+userImage = pygame.transform.scale(userImage,backgroundSize)
+
+lookUp = get_lookup()
+
+screen.blit(userImage,[0,0])
+# pygame.display.flip()
+sound = []
+for i in lookUp:
+	sound.append(sum(screen.get_at(i)[0:3])/3)
+	# temp = sum(screen.get_at(i)[0:3])/3
+	# screen.set_at(i,[temp,temp,temp])
+pygame.display.flip()
+
+########
+# TODO #
+# Turn sound array into sound #
 
 done = False
-Log = int(math.log(backgroundSize[0])/math.log(2))
-
-randomPoint = random.randint(0,1000)/1000.0
-print randomPoint
-
-for iteration in range(Log+1):
-	screen.fill(0)
-	boxSize=2**(Log-iteration)
-	tim = turtle([0,backgroundSize[1]/boxSize-1])
-	movement = "L"
-	for i in range(iteration):
-		movement = movement.replace("L",L).replace("R",R).replace("r","R")
-	movement = movement.replace("R","").replace("L","").replace("+-","").replace("-+","")
-	length = movement.count("F")
-	count = 0
-	for i in movement:
-		for event in pygame.event.get(): 
-			if event.type == pygame.QUIT:
-				done = True
-		if done:
-			break 
-		if i == "F":
-			tim.forward()
-			count+=1
-			tim.draw(colorsys.hsv_to_rgb(map(count,[0,length],[0,1]),1,255))
-			
-		elif i == "+":
-			tim.rightTurn()
-		elif i == "-":
-			tim.leftTurn()
-		if count == int(length*randomPoint):
-			tim.Point()
-		if tim.point:	
-			pygame.draw.circle(screen,WHITE,tim.point,5)
-	pygame.display.flip()
-	clock.tick(1)
-	if done:
-		break 
+while not done:
+	for event in pygame.event.get(): 
+		if event.type == pygame.QUIT:
+			done = True
 
 
 
